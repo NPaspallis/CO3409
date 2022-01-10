@@ -1,0 +1,16 @@
+{
+  "name": "timetable-sequelize-app",
+  "version": "1.0.0",
+  "description": "A demo of a complete #Sequelize-backed Timetable API app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nearchos Paspallis",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.2",
+    "sequelize": "^6.12.5",
+    "sqlite3": "^4.2.0"
+  }
+}
