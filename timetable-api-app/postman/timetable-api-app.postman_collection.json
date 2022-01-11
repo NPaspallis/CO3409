@@ -7,6 +7,20 @@
 	"item": [
 		{
 			"name": "GET timetable/modules",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"The response body has >=1 Modules\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.length).to.gte(1); // results are expected to be >= 1\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -25,7 +39,7 @@
 			"response": []
 		},
 		{
-			"name": "GET timetable/modules/CO3409",
+			"name": "GET timetable/module/1",
 			"event": [
 				{
 					"listen": "test",
@@ -43,22 +57,60 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:3000/timetable/modules/CO3409",
+					"raw": "localhost:3000/timetable/module/1",
 					"host": [
 						"localhost"
 					],
 					"port": "3000",
 					"path": [
 						"timetable",
-						"modules",
-						"CO3409"
+						"module",
+						"1"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "GET timetable/modules/CO9999 - returns 404",
+			"name": "GET timetable/module?code=CO3409",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/timetable/module?code=CO3409",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"timetable",
+						"module"
+					],
+					"query": [
+						{
+							"key": "code",
+							"value": "CO3409"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET timetable/modules/CO9999 - 404",
 			"event": [
 				{
 					"listen": "test",
@@ -91,7 +143,7 @@
 			"response": []
 		},
 		{
-			"name": "POST timetable/modules/CO3409 - returns 409",
+			"name": "POST timetable/module - CO3409 - 409",
 			"event": [
 				{
 					"listen": "test",
@@ -110,25 +162,24 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    id: 3,\r\n    code: \"CO3409\",\r\n    name: \"Distributed Enterprise Applications\"\r\n}"
+					"raw": "{\r\n    \"id\": \"3\",\r\n    \"code\": \"CO3409\",\r\n    \"name\": \"Distributed Enterprise Applications\"\r\n}"
 				},
 				"url": {
-					"raw": "localhost:3000/timetable/modules/CO3409",
+					"raw": "localhost:3000/timetable/module",
 					"host": [
 						"localhost"
 					],
 					"port": "3000",
 					"path": [
 						"timetable",
-						"modules",
-						"CO3409"
+						"module"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "POST timetable/modules/CO1111",
+			"name": "POST timetable/module - CO1111 - 200",
 			"event": [
 				{
 					"listen": "test",
@@ -153,25 +204,24 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id\": 3,\r\n    \"code\": \"CO1111\",\r\n    \"name\": \"The Computing Challenge\"\r\n}"
+					"raw": "{\r\n    \"id\": \"3\",\r\n    \"code\": \"CO1111\",\r\n    \"name\": \"The Computing Challenge\"\r\n}"
 				},
 				"url": {
-					"raw": "localhost:3000/timetable/modules/CO1111",
+					"raw": "localhost:3000/timetable/module",
 					"host": [
 						"localhost"
 					],
 					"port": "3000",
 					"path": [
 						"timetable",
-						"modules",
-						"CO1111"
+						"module"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "POST timetable/modules/CO4755",
+			"name": "POST timetable/module - CO4755 - 200",
 			"event": [
 				{
 					"listen": "test",
@@ -196,25 +246,24 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id\": 4,\r\n    \"code\": \"CO4755\",\r\n    \"name\": \"Mobile Application Development\"\r\n}"
+					"raw": "{\r\n    \"id\": \"4\",\r\n    \"code\": \"CO4755\",\r\n    \"name\": \"Mobile Application Development\"\r\n}"
 				},
 				"url": {
-					"raw": "localhost:3000/timetable/modules/CO4755",
+					"raw": "localhost:3000/timetable/module",
 					"host": [
 						"localhost"
 					],
 					"port": "3000",
 					"path": [
 						"timetable",
-						"modules",
-						"CO4755"
+						"module"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "DELETE timetable/modules/CO1111",
+			"name": "DELETE timetable/module?code=CO1111",
 			"event": [
 				{
 					"listen": "test",
@@ -233,18 +282,107 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id\": 3,\r\n    \"code\": \"CO1111\",\r\n    \"name\": \"The Computing Challenge\"\r\n}"
+					"raw": ""
 				},
 				"url": {
-					"raw": "localhost:3000/timetable/modules/CO1111",
+					"raw": "localhost:3000/timetable/module?code=CO1111",
 					"host": [
 						"localhost"
 					],
 					"port": "3000",
 					"path": [
 						"timetable",
-						"modules",
-						"CO1111"
+						"module"
+					],
+					"query": [
+						{
+							"key": "code",
+							"value": "CO1111"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE timetable/module?code=CO4755",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:3000/timetable/module?code=CO4755",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"timetable",
+						"module"
+					],
+					"query": [
+						{
+							"key": "code",
+							"value": "CO4755"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE timetable/module?code=CO4755 - 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:3000/timetable/module?code=CO4755",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"timetable",
+						"module"
+					],
+					"query": [
+						{
+							"key": "code",
+							"value": "CO4755"
+						}
 					]
 				}
 			},

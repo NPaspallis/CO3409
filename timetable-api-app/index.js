@@ -33,8 +33,21 @@ app.get('/timetable/modules', (req, res) => {
         .send(timetable_data.modules); // body is JSON
 });
 
-app.get('/timetable/modules/:code', (req, res) => {
-    const { code } = req.params; // extract 'code' from request
+app.get('/timetable/module/:id', (req, res) => {
+    const { id } = req.params; // extract 'id' from request (note it's a string)
+    // find 'module' by iterating 'modules' and checking their 'id'
+    var module = timetable_data.modules.find(m => m.id.toString() === id);
+    if(!module) { // true if 'module' not set
+        res.status(404).send(); // resource not found
+    } else {
+        res.status(200)
+            .setHeader('content-type', 'application/json')
+            .send(module);
+    }
+});
+
+app.get('/timetable/module', (req, res) => {
+    const code = req.query.code; // extract 'code' from request
     // find 'module' by iterating 'modules' and checking their 'code'
     var module = timetable_data.modules.find(m => m.code === code);
     if(!module) { // true if 'module' not set
@@ -46,13 +59,13 @@ app.get('/timetable/modules/:code', (req, res) => {
     }
 });
 
-app.post('/timetable/modules/:code', (req, res) => {
-    const { code } = req.params;
-    var module = timetable_data.modules.find(m => m.code === code);
+app.post('/timetable/module', (req, res) => {
+    const posted_module = req.body; // submitted module - picked from body
+    // look up for existing module with  given code 
+    var module = timetable_data.modules.find(m => m.code === posted_module.code);
     if(module) { // true if 'module' set (found)
         res.status(409).send(); // resource already exists
     } else {
-        const posted_module = req.body; // submitted module
         timetable_data.modules.push(posted_module); // add to local model
         res.status(200)
             .setHeader('content-type', 'application/json')
@@ -60,8 +73,9 @@ app.post('/timetable/modules/:code', (req, res) => {
     }
 });
 
-app.delete('/timetable/modules/:code', (req, res) => {
-    const { code } = req.params;
+app.delete('/timetable/module', (req, res) => {
+    const code = req.query.code; // look for ?code=... param
+    // look up for existing module with  given code 
     var module = timetable_data.modules.find(m => m.code === code);
     if(!module) { // true if 'module' not set/found
         res.status(404).send(); // resource not found
