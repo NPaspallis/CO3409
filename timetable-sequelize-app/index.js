@@ -115,8 +115,29 @@ app.get('/timetable/modules', (req, res) => {
         });
 });
 
-app.get('/timetable/module/:code', (req, res) => {
-    const { code } = req.params; // extract 'code' from request
+app.get('/timetable/module/:id', (req, res) => {
+    const { id } = req.params; // extract 'id' from request
+    Module.findOne({where: {id: id}})
+        .then(module => {
+            if(module) {
+                res.status(200)
+                    .setHeader('content-type', 'application/json')
+                    .send(module); // body is JSON
+            } else { // module not found
+                res.status(404)
+                    .setHeader('content-type', 'application/json')
+                    .send({message: `Module not found for id: ${id}`});
+            }
+        })
+        .catch(error => {
+            res.status(500)
+                .setHeader('content-type', 'application/json')
+                .send({error: `Server error: ${error.name}`});
+        });
+});
+
+app.get('/timetable/module', (req, res) => {
+    const code = req.query.code; // extract 'code' from request
     Module.findOne({where: {code: code}})
         .then(module => {
             if(module) {
@@ -433,7 +454,6 @@ app.delete('/timetable/session/:id', (req, res) => {
             if(session) { // session found
                 session.destroy()
                     .then(deleted_session => {
-console.debug(`deleted: ${JSON.stringify(deleted_session)}`);//todo delete
                         res.status(200)
                             .setHeader('content-type', 'application/json')
                             .send({ message: `Session deleted: ${id}`});
