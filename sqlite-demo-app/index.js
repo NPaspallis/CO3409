@@ -9,7 +9,7 @@ let db = new sqlite3.Database('./db/demo.db', (err) => { // file-based database
 
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY, name TEXT NOT NULL)`);
-
+    
     db.run(`INSERT INTO test (name) VALUES (?)`, ['Hello']);
     db.run(`INSERT INTO test (name) VALUES (?)`, ['World!']);
     

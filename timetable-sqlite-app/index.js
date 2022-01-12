@@ -30,8 +30,29 @@ app.get('/timetable/modules', (req, res) => {
     });
 });
 
-app.get('/timetable/modules/:code', (req, res) => {
-    const { code } = req.params; // extract 'code' from request
+app.get('/timetable/module/:id', (req, res) => {
+    const { id } = req.params; // extract 'id' from URI request
+    db.get(`SELECT id, code, name FROM modules WHERE id=?`, id, (err, row) => {
+        if(err) {
+            console.error('Problem while querying database: ' + err);
+            res.status(500) // internal server error
+                .setHeader('content-type', 'application/json')
+                .send({ error: "Problem while querying database"});
+        }
+        if(!row) { // true if 'module' not set
+            res.status(404)
+                .setHeader('content-type', 'application/json')
+                .send({ error: "Module not found for id: " + id}); // resource not found
+        } else {
+            res.status(200)
+                .setHeader('content-type', 'application/json')
+                .send({ id: `${row.id}`, code: `${row.code}`, name: `${row.name}`});
+        }
+    });
+});
+
+app.get('/timetable/module', (req, res) => {
+    const code = req.query.code; // extract 'code' from request
     db.get(`SELECT id, code, name FROM modules WHERE code=?`, [code], (err, row) => {
         if(err) {
             console.error('Problem while querying database: ' + err);
@@ -51,41 +72,106 @@ app.get('/timetable/modules/:code', (req, res) => {
     });
 });
 
-app.post('/timetable/modules/:code', (req, res) => {
-    const { code } = req.params; // parameter extracted from URI
+app.post('/timetable/module', (req, res) => {
     const posted_module = req.body; // submitted module
-    db.run(`INSERT INTO modules (code, name) VALUES (?, ?)`, // id is auto-generated
-                [posted_module.code, posted_module.name], (err) => {
-        if(err) {
-            if(err.code === 'SQLITE_CONSTRAINT') {
-                res.status(409) // resource already exists
+    if(!posted_module || !posted_module.code || !posted_module.name) {
+        res.status(400) // bad request
+            .setHeader('content-type', 'application/json')
+            .send({ error: `Module must define a code and name`});
+    } else {
+        db.run(`INSERT INTO modules (code, name) VALUES (?, ?)`, // id is auto-generated
+                [posted_module.code, posted_module.name], function(err) {
+            if(err) {
+                if(err.code === 'SQLITE_CONSTRAINT') {
+                    res.status(409) // resource already exists
+                        .setHeader('content-type', 'application/json')
+                        .send({ error: `Module already exists: ${posted_module.code}`});
+                } else { // other server-side error
+                    res.status(500)
+                        .setHeader('content-type', 'application/json')
+                        .send({ error: "Server error: " + err});
+                }
+            } else {
+                res.status(200)
                     .setHeader('content-type', 'application/json')
-                    .send({ error: "Module already exists: " + code});
-            } else { // other server-side error
+                    .send({ message: "Module added", code: posted_module.code, id: this.lastID});
+            }
+        });
+    }
+});
+
+app.put('/timetable/module/:id', (req, res) => {
+    const { id } = req.params; // get id from params
+    const posted_module = req.body; // submitted module
+    if(!posted_module || !posted_module.code || !posted_module.name) {
+        res.status(400) // bad request
+            .setHeader('content-type', 'application/json')
+            .send({ error: `Module must define a code and name`});
+    } else {
+        db.get(`SELECT id, code, name FROM modules WHERE id=?`, [id], (err, row) => {
+            if(err) {
                 res.status(500)
                     .setHeader('content-type', 'application/json')
                     .send({ error: "Server error: " + err});
+            } else {
+                if(!row) { // true if 'module' not set
+                    res.status(404)
+                        .setHeader('content-type', 'application/json')
+                        .send({ error: "Module not found for id: " + id}); // resource not found
+                } else { // module found, let's update it
+                    db.run(`UPDATE modules SET code=?, name=? WHERE id=?`,
+                            [posted_module.code, posted_module.name, id], (err) => {
+                        if(err) {
+                            if(err.code === 'SQLITE_CONSTRAINT') {
+                                res.status(409) // resource already exists
+                                    .setHeader('content-type', 'application/json')
+                                    .send({ error: `Module already exists: ${posted_module.code}`});
+                            } else { // other server-side error
+                                res.status(500)
+                                    .setHeader('content-type', 'application/json')
+                                    .send({ error: "Server error: " + err});
+                            }
+                        } else {
+                            res.status(200)
+                                .setHeader('content-type', 'application/json')
+                                .send({ message: "Module added: " + posted_module.code});
+                        }
+                    });
+                }
             }
-            return; // terminate call
-        }
-        res.status(200)
-            .setHeader('content-type', 'application/json')
-            .send({ message: "Module added: " + code});
-    });
+        });
+    }
 });
 
-app.delete('/timetable/modules/:code', (req, res) => {
-    const { code } = req.params;
-    db.run(`DELETE FROM modules WHERE code=?`, [code], function(err) {
-        console.log(`this: ${JSON.stringify(this)}`);
-
+app.delete('/timetable/module/:id', (req, res) => {
+    const { id } = req.params; // get id from params
+    db.run(`DELETE FROM modules WHERE id=?`, [id], function(err) {
         if(err) {
             res.status(500)
                 .setHeader('content-type', 'application/json')
                 .send({ error: "Server error: " + err});
         }
         if(this.changes === 0) {
-            console.log('Module not found: ' + code);
+            res.status(404)
+                .setHeader('content-type', 'application/json')
+                .send({ error: "Module not found for id: " + id});
+        } else {
+            res.status(200)
+            .setHeader('content-type', 'application/json')
+            .send({ message: "Module deleted for id: " + id});
+        }
+    })
+});
+
+app.delete('/timetable/module', (req, res) => {
+    const code = req.query.code; // look for ?code=... param
+    db.run(`DELETE FROM modules WHERE code=?`, [code], function(err) {
+        if(err) {
+            res.status(500)
+                .setHeader('content-type', 'application/json')
+                .send({ error: "Server error: " + err});
+        }
+        if(this.changes === 0) {
             res.status(404)
                 .setHeader('content-type', 'application/json')
                 .send({ error: "Module not found: " + code});
@@ -94,7 +180,7 @@ app.delete('/timetable/modules/:code', (req, res) => {
             .setHeader('content-type', 'application/json')
             .send({ message: "Module deleted: " + code});
         }
-    });
+    })
 });
 
 app.listen(port, () => {
