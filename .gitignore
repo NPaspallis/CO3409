@@ -102,3 +102,5 @@ dist
 
 # TernJS port file
 .tern-port
+
+transactions-demo-app/db/transactions-demo.db
