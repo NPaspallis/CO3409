@@ -51,8 +51,8 @@ app.get('/timetable/module/:id', (req, res) => {
     });
 });
 
-app.get('/timetable/module', (req, res) => {
-    const code = req.query.code; // extract 'code' from request
+app.get('/timetable/module', (req, res) => { // example request: /timetable/module?code=CO2509'
+    const code = req.query.code; // extract 'code' from URI *parameters*
     db.get(`SELECT id, code, name FROM modules WHERE code=?`, [code], (err, row) => {
         if(err) {
             console.error('Problem while querying database: ' + err);
@@ -63,7 +63,7 @@ app.get('/timetable/module', (req, res) => {
         if(!row) { // true if 'module' not set
             res.status(404)
                 .setHeader('content-type', 'application/json')
-                .send({ error: "Module not found: " + code}); // resource not found
+                .send({ error: "Module not found for code: " + code}); // resource not found
         } else {
             res.status(200)
                 .setHeader('content-type', 'application/json')
