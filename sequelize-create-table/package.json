@@ -1,0 +1,16 @@
+{
+  "name": "sequelize-create-table",
+  "version": "1.0.0",
+  "description": "Demonstrating how to create a table using sequelize",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nearchos Paspallis",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.2",
+    "sequelize": "^6.15.0",
+    "sqlite3": "^4.2.0"
+  }
+}
