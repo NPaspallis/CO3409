@@ -26,7 +26,7 @@ const Student = sequelize.define('Student', {
 });
 
 async function init() {
-    await sequelize.sync(); // create all tables, if needed
+    await sequelize.sync({force: true}); // create all tables, if needed
 }
 
 init();
